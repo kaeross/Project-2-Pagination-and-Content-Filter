@@ -1,20 +1,14 @@
 let studentList = $('.student-item');
 const studentName = $('.student-item h3');
 const studentEmail = $('.email');
-const studentJoined = $('.date');
 let studentArray = [];
 let pageNum = 1;
 const studentsPerPage = 10;
 let numberOfPages = Math.ceil(studentList.length / studentsPerPage -1);
 let matched = [];
-const searchButton = $('.student-search button');
 
 function showList() {
 	$(this).show();
-} 
-
-function hideList() {
-	$(this).hide();
 } 
 
 //on page load - hide all but first 10 students
