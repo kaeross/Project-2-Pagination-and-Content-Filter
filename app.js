@@ -113,6 +113,7 @@ function searchList() {
 		if(studentName[i].innerHTML.toUpperCase().indexOf(searchInputVal) > -1 || studentEmail[i].innerHTML.toUpperCase().indexOf(searchInputVal) > -1){
 			// add this student to list of “matched” student
 			matched.push(studentList[i]);
+			searchInput.val('');
 		} 
 	} 
 
