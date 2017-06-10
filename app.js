@@ -7,7 +7,6 @@ let pageNum = 1;
 const studentsPerPage = 10;
 let numberOfPages = Math.ceil(studentList.length / studentsPerPage -1);
 let matched = [];
-let numberOfPagesMatched;
 const searchButton = $('.student-search button');
 
 function showList() {
