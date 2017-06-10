@@ -5,7 +5,7 @@ const studentJoined = $('.date');
 let studentArray = [];
 let pageNum = 1;
 const studentsPerPage = 10;
-const numberOfPages = Math.ceil(studentList.length / studentsPerPage -1);
+let numberOfPages = Math.ceil(studentList.length / studentsPerPage -1);
 let matched = [];
 let numberOfPagesMatched;
 const searchButton = $('.student-search button');
@@ -19,57 +19,59 @@ function hideList() {
 } 
 
 //on page load - hide all but first 10 students
-$(document).ready(showPage(0));
+$(document).ready(showPage(0, studentList));
 
 //Assign Students to pages and show according to page
-function showPage(pageNum) {
+function showPage(pageNum, param2) {
 	studentList.hide();
-	//stores arrays of 10 students within another array
-	if (studentList.length != []) {
-		//push 1st 10 students into new array
-		studentArray.push(studentList.splice(0, 10));
+	//push 1st 10 students into new array
+	studentArray.push(param2.splice(0, 10));
 		//every 10 push next group into array
 		for (let i = 0; i < numberOfPages; i+=1) {
-			studentArray.push(studentList.splice(0, 10));
+			studentArray.push(param2.splice(0, 10));
 		}
-	}
-	//calls relevant student array
+	//shows each student on page called
 	$.each(studentArray[pageNum], showList);
-
 	//reset student list so can be hidden next time function is run
 	studentList = $('.student-item');
 }            
 
 
 //Create Pagination and append to student list
-function appendPageLinks(pageSource) {
-	let paginationHTML = '<div class="pagination"><ul>';
-	//loop creates each page number
-	for (let i = 0; i <= pageSource; i+=1) {
-		paginationHTML +='<li><a class="" href="#">' + pageNum + '</a></li>';
-		pageNum += 1;
+function appendPageLinks(param2) {
+	function createPagination() {
+		let paginationHTML = '<div class="pagination"><ul>';
+		//loop creates each page number
+		for (let i = 0; i <= numberOfPages; i+=1) {
+			paginationHTML +='<li><a class="" href="#">' + pageNum + '</a></li>';
+			pageNum += 1;
+		}
+		paginationHTML += '</ul></div>';
+		return paginationHTML;
 	}
-	paginationHTML += '</ul></div>';
-	return paginationHTML;
-}
-$('.student-list').append(appendPageLinks(numberOfPages));
-$('.pagination a').first('a').addClass('active');
+	$('.student-list').append(createPagination());
+	$('.pagination a').first('a').addClass('active');
 
-
-//Pagination connected to "pages" 
-const links = $('a');
-links.on('click', function(e){
-	let numButton = $(e.target).text();
-	parseInt(numButton);
-	if(links.siblings('.active')) {
-		links.removeClass('active');
-	}
-	e.preventDefault();
-	$(this).addClass('active');
+	//Pagination connected to "pages" 
+	const links = $('a');
+	links.on('click', function(e){
+		let numButton = $(e.target).text();
+		parseInt(numButton);
+		if(links.siblings('.active')) {
+			links.removeClass('active');
+		}
+		e.preventDefault();
+		$(this).addClass('active');
 
 	//call showPage
-	showPage(numButton -  1);
+	showPage(numButton -  1, param2);
 }); 
+}
+
+appendPageLinks(studentList);
+
+
+
 
 //Append search input to header
 function searchBox() {
@@ -96,7 +98,6 @@ function searchList() {
 	//obtain value of search input
 	let searchInput = $('.student-search > input');
 	let searchInputVal = searchInput.val().toUpperCase();
-	console.log(searchInputVal);
 
 	// remove the previous page link section 
 	$('.pagination').remove();
@@ -109,64 +110,32 @@ function searchList() {
 
 	// Loop over the student list and check if student name or email contains search query
 	for (let i = 0; i < studentList.length; i++) {
-		//If the search value is found inside either email or name 
 		if(studentName[i].innerHTML.toUpperCase().indexOf(searchInputVal) > -1 || studentEmail[i].innerHTML.toUpperCase().indexOf(searchInputVal) > -1){
-			// ...add this student to list of “matched” student
-			// matched.push(studentList[i]);
+			// add this student to list of “matched” student
 			matched.push(studentList[i]);
 		} 
 	} 
 
+	// if not found display message
 	if (matched.length === 0) {
 		$('.student-list').prepend(notFound);
 		$('.not-found').css({'margin': '2em', 'text-align': 'center', 'font-size': '1em','padding': '3em 0'});
 		searchInput.val('');
 	} else {
-		console.log(matched);
-		if (matched.length < 10) {
-			for (let i = 0; i < matched.length; i++) {
-				$.each(matched, showList);
-			}
-		} else {
+
+		//show matched students
 			//reset page number
 			pageNum = 1;
-			function showSearch(pageNum) {
-				studentList.hide();
-				numberOfPagesMatched = Math.ceil(matched.length / studentsPerPage -1);
-				console.log(numberOfPagesMatched);
-				studentArray.push(matched.splice(0,10));
-				if (matched.length > 10) {
-					for(let i = 0; i < numberOfPagesMatched; i+=1) {
-						studentArray.push(matched.splice(0,10));
-					}
-				}
-				$.each(studentArray[pageNum], showList);
-				studentList = $('.student-item');
-
-			}
-			
-			showSearch(0);
-			$('.student-list').append(appendPageLinks(numberOfPagesMatched));
-			$('.pagination a').first('a').addClass('active');
-			const searchLinks = $('a');
-			searchLinks.on('click', function(e){
-				let numButton = $(e.target).text();
-				parseInt(numButton);
-				if(searchLinks.siblings('.active')) {
-					searchLinks.removeClass('active');
-				}
-				e.preventDefault();
-				$(this).addClass('active');
-
-				//call showPage
-				showSearch(numButton -  1);
-			}); 
-		}
+			//reset number of pages
+			numberOfPages = Math.ceil(matched.length / studentsPerPage -1);
+			//call show page on matched students
+			showPage(0, matched);
+			appendPageLinks(matched);
 	}
 }
 
 
-$('.student-search button').on('click', searchList);
+	$('.student-search button').on('click', searchList);
 
 
 
